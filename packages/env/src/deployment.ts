@@ -11,6 +11,7 @@ export function deploymentEnvironment(input: NodeJS.ProcessEnv): NodeJS.ProcessE
 	return {
 		...input,
 		APP_URL: appUrl,
+		AUTH_SECRET: value("AUTH_SECRET") ?? value("BETTER_AUTH_SECRET"),
 		DATABASE_URL: value("DATABASE_URL") ?? (vercel ? value("POSTGRES_URL") : undefined),
 		DATABASE_MIGRATION_URL:
 			value("DATABASE_MIGRATION_URL") ??

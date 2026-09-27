@@ -37,4 +37,18 @@ describe("deployment environment", () => {
 			deploymentEnvironment({ ...base, APP_URL: "https://custom.example", REDIS_URL: "rediss://explicit" }),
 		).toMatchObject({ APP_URL: "https://custom.example", REDIS_URL: "rediss://explicit" });
 	});
+
+	it("maps legacy Better Auth secret to AUTH_SECRET without overriding explicit value", () => {
+		expect(deploymentEnvironment({ BETTER_AUTH_SECRET: "legacy-secret" })).toMatchObject({
+			AUTH_SECRET: "legacy-secret",
+		});
+		expect(
+			deploymentEnvironment({
+				AUTH_SECRET: "explicit-secret",
+				BETTER_AUTH_SECRET: "legacy-secret",
+			}),
+		).toMatchObject({
+			AUTH_SECRET: "explicit-secret",
+		});
+	});
 });
