@@ -38,6 +38,23 @@ describe("deployment environment", () => {
 		).toMatchObject({ APP_URL: "https://custom.example", REDIS_URL: "rediss://explicit" });
 	});
 
+	it("derives preview APP_URL and database aliases from branch and prisma vars", () => {
+		expect(
+			deploymentEnvironment({
+				VERCEL: "1",
+				VERCEL_ENV: "preview",
+				VERCEL_BRANCH_URL: "feature-preview.vercel.app",
+				POSTGRES_PRISMA_URL: "postgresql://prisma/db",
+				POSTGRES_URL_NON_POOLING: "postgresql://nonpooling/db",
+			}),
+		).toMatchObject({
+			APP_URL: "https://feature-preview.vercel.app",
+			DATABASE_URL: "postgresql://prisma/db",
+			DATABASE_MIGRATION_URL: "postgresql://nonpooling/db",
+			DEPLOYMENT_NAMESPACE: "feature-preview.vercel.app",
+		});
+	});
+
 	it("maps legacy Better Auth secret to AUTH_SECRET without overriding explicit value", () => {
 		expect(deploymentEnvironment({ BETTER_AUTH_SECRET: "legacy-secret" })).toMatchObject({
 			AUTH_SECRET: "legacy-secret",
