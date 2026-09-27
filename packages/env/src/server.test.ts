@@ -22,3 +22,20 @@ describe("root resume configuration", () => {
 		expect(env.ROOT_RESUME_ID).toBe(expected);
 	});
 });
+
+describe("validation error logging", () => {
+	it("logs specific missing or invalid environment variables when validation fails", async () => {
+		const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+		vi.stubEnv("APP_URL", "invalid-url");
+		vi.stubEnv("DATABASE_URL", "postgresql://localhost/disposable");
+		vi.stubEnv("AUTH_SECRET", "");
+
+		await expect(import("./server")).rejects.toThrow("Invalid environment variables");
+
+		expect(consoleErrorSpy).toHaveBeenCalledWith("❌ Invalid environment variables:");
+		expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining("APP_URL:"));
+		expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining("AUTH_SECRET:"));
+
+		consoleErrorSpy.mockRestore();
+	});
+});
